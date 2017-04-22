@@ -22,12 +22,10 @@ There's no way around this, even trying to use the command line `ping` utility
 inside the Amazon Linux container the Lambda runs inside of won't work.
 
 The annoyance of course is that this means anything you want to monitor needs
-to be running a webserver of some kind. If you lack that option or don't wish
-to install one, you could run a tiny one-page webserver on a higher port purely
-for pinging with this Lambda.
-
-You could use [one of the many higher languages to make a one line web server](https://gist.github.com/willurd/5720255)
-or if you get really desperate, [here's one in C code](https://gist.github.com/jethrocarr/c56cecbf111af8c29791f89a2c30b978).
+to be running a webserver of some kind. It doesn't have to be a full-blown
+installation of Apache, you could use [one of the many higher languages to make
+a one line web server](https://gist.github.com/willurd/5720255) or if you get
+really desperate, [here's one in C code](https://gist.github.com/jethrocarr/c56cecbf111af8c29791f89a2c30b978).
 
 
 # This sucks, I want better metrics
@@ -53,9 +51,9 @@ Invoke the Lambda with a JSON object defining the targets as an array:
 
     serverless invoke --stage prod --region ap-southeast-2 \
     --function http \
-    --data '{"targets": ["http://www.google.com", "http://github.com"]}'
+    --data '["http://www.google.com", "http://github.com"]'
 
-The function returns a JSON array.
+The function returns a JSON object with the results.
 
 
 # Contributions

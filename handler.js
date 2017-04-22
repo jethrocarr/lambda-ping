@@ -8,7 +8,7 @@ module.exports.http = (event, context, callback) => {
   var request  = require('request');
 
   // Interate through each of the endpoints provided.
-  var targets = event['targets'];
+  var targets = event;
   console.log('targets:', targets);
 
   targets.forEach(
@@ -19,6 +19,7 @@ module.exports.http = (event, context, callback) => {
       var requestObj = {
         "uri": target,
         "time": true,
+        "timeout": 10000, // milliseconds
       };
 
       request(requestObj, function (error, response, body) {
@@ -28,7 +29,7 @@ module.exports.http = (event, context, callback) => {
 
         if (error) {
           output[ target ] = {
-            "HTTPError": error.errno
+            "HTTPError": error.code
           };
         } else {
           output[ target ] = {
