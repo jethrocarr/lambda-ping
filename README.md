@@ -102,6 +102,7 @@ want. Note that is is more cost effective to test as many endpoints using the
 fewest rules possible, since all endpoints in a single rule get tests
 concurrently reducing our Lambda's execution time.
 
+![Example CloudWatch Event](https://cloud.githubusercontent.com/assets/622282/25309614/e003991a-2825-11e7-87ad-ffc24482e010.png)
 
 
 # Contributions
