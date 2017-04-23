@@ -11,6 +11,8 @@ CloudWatch Alarms with the metrics recorded. For example, it becomes very easy
 to send alerts on endpoint health, trigger another Lambda or consume the alarm
 with another AWS service such as Route53 failover.
 
+![Cloudwatch Example](https://cloud.githubusercontent.com/assets/622282/25309581/29f2828a-2825-11e7-844d-714083086c80.png)
+
 
 # How it works
 
