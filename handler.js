@@ -7,17 +7,23 @@ module.exports.http = (event, context, callback) => {
   // calls since it makes things so easy.
   var request  = require('request');
 
+  // The AWS SDK is shipped as part of the Lambda environment. We need it in
+  // order to post metrics to CloudWatch.
+  var AWS = require('aws-sdk');
+
+  var cloudwatch = new AWS.CloudWatch();
+
   // Interate through each of the endpoints provided.
-  var targets = event;
-  console.log('targets:', targets);
+  var endpoints = event;
+  console.log('endpoints:', endpoints);
 
-  targets.forEach(
+  endpoints.forEach(
 
-    function(target) {
-      console.log("Requesting " + target);
+    function(endpoint) {
+      console.log("Requesting " + endpoint);
 
       var requestObj = {
-        "uri": target,
+        "uri": endpoint,
         "time": true,
         "timeout": 10000, // milliseconds
       };
@@ -27,18 +33,74 @@ module.exports.http = (event, context, callback) => {
         //console.log('error:', error);
         //console.log('statusCode:', response && response.statusCode);
 
+        // Create the stats for this request.
         if (error) {
-          output[ target ] = {
-            "HTTPError": error.code
+          output[ endpoint ] = {
+            "HTTPError": error.code,
+            "statusCode": 0,
+            "durationMS": 0,
           };
         } else {
-          output[ target ] = {
+          output[ endpoint ] = {
             "statusCode": response.statusCode,
             "durationMS": response.timingPhases.total
           };
         }
 
-        console.log(target +" : "+ JSON.stringify(output [ target ]));
+        console.log(endpoint +" : "+ JSON.stringify(output [ endpoint ]));
+
+
+
+        // Push metrics to CloudWatch.
+        var params = {
+          Namespace: 'Lambda-Ping/HTTP',
+          MetricData: [
+            // StatusCode
+            {
+              MetricName: 'StatusCode',
+              Dimensions: [
+                {
+                  Name: 'Endpoint',
+                  Value: endpoint
+                }
+              ],
+              StatisticValues: {
+                SampleCount: 1,
+                Sum: output[ endpoint ]["statusCode"],
+                Minimum: 0,
+                Maximum: 1000, // HTTP spec permits any three-digit status code
+              },
+              Unit: 'None'
+            },
+            // Latency (Response Time)
+            {
+              MetricName: 'Latency',
+              Dimensions: [
+                {
+                  Name: 'Endpoint',
+                  Value: endpoint
+                }
+              ],
+              StatisticValues: {
+                SampleCount: 1,
+                Sum: output[ endpoint ]["durationMS"],
+                Minimum: 0,
+                Maximum: 30000, // 30 seconds
+              },
+              Unit: 'Milliseconds'
+            }
+          ]
+        }
+
+        cloudwatch.putMetricData(params, function(error, data) {
+          if (error) {
+            console.log("Unexpected issue posting metrics to CloudWatch");
+            console.log(error, error.stack);
+          } else {
+            console.log("Logged metrics in Cloudwatch at: "+ params['Namespace']);
+          }
+        });
+
       });
     }
   );
@@ -49,8 +111,8 @@ module.exports.http = (event, context, callback) => {
   waitForCompletion();
 
   function waitForCompletion() {
-    // Count of output objects should match count of targets
-    if (Object.keys(output).length < targets.length) {
+    // Count of output objects should match count of endpoints
+    if (Object.keys(output).length < endpoints.length) {
       setTimeout(waitForCompletion, 100);
       return;
     }

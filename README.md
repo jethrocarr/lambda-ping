@@ -1,7 +1,15 @@
 # Lambda Ping
 
 Lambda Ping is a small service which checks the HTTP response code and latency
-for one or more supplied endpoints.
+for one or more supplied endpoints. It returns this data both directly in the
+form of a JSON object that can be consumed by other applications, as well as
+saving the results to CloudWatch.
+
+Because the data is in CloudWatch, you can use the results to trigger other
+events when an endpoint fails/recovers or performs too slowly by creating
+CloudWatch Alarms with the metrics recorded. For example, it becomes very easy
+to send alerts on endpoint health, trigger another Lambda or consume the alarm
+with another AWS service such as Route53 failover.
 
 
 # How it works
@@ -9,7 +17,8 @@ for one or more supplied endpoints.
 Once supplied with a JSON list of HTTP or HTTPS endpoints, this Lambda hits them
 concurrently and returns the status code and total query time. We take advantage
 of NodeJS's callback model to allow easy concurrent execution when running the
-tests.
+tests, so the Lambda only runs for as long as it takes for the slowest query to
+complete. A max timeout of 10 seconds applies.
 
 
 # Why not ICMP?
@@ -47,13 +56,39 @@ to `ap-southeast-2`:
 
 # Usage
 
-Invoke the Lambda with a JSON object defining the targets as an array:
+To use the Lambda manually, invoke the Lambda with a JSON object defining the
+endpoints as an array:
 
     serverless invoke --stage prod --region ap-southeast-2 \
     --function http \
     --data '["http://www.google.com", "http://github.com"]'
 
 The function returns a JSON object with the results.
+
+Generally you'll probably want to automatically ping the endpoints on a regular
+basis. To do this, create a CloudWatch event on a scheduled basis. This allows
+you to have complete flexibility over when and how frequently you execute your
+pings - for example, you might ping one endpoint every minute, whilst another
+might only need to be once an hour.
+
+To do this, first install the Lambda as per the instructions above. Then create
+a new CloudWatch event by:
+
+1. Access the CloudWatch Events console.
+2. `Create Rule`
+3. Select the `Schedule` option for `Event Source`.
+4. Choose your desired rate of execution.
+5. `Add Target`. It should default to `Lambda Function`.
+6. Select the `ping-STAGE-http` Lambda from the dropdown.
+7. Configure input to use `Constant (JSON text)`
+8. Add the array of endpoints to test on this schedule.
+   For example: `["http://www.google.com", "http://github.com"]`
+
+You can create as many rules as you want, on as many different schedules as you
+want. Note that is is more cost effective to test as many endpoints using the
+fewest rules possible, since all endpoints in a single rule get tests
+concurrently reducing our Lambda's execution time.
+
 
 
 # Contributions
