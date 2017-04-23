@@ -63,9 +63,20 @@ endpoints as an array:
 
     serverless invoke --stage prod --region ap-southeast-2 \
     --function http \
-    --data '["http://www.google.com", "http://github.com"]'
+    --data '["http://www.google.com", "https://www.jethrocarr.com"]'
 
 The function returns a JSON object with the results.
+
+    {
+        "http://www.google.com": {
+            "statusCode": 200,
+            "durationMS": 169.88141500001075
+        },
+        "https://www.jethrocarr.com": {
+            "statusCode": 200,
+            "durationMS": 6757.3228579999995
+        }
+    }
 
 Generally you'll probably want to automatically ping the endpoints on a regular
 basis. To do this, create a CloudWatch event on a scheduled basis. This allows
