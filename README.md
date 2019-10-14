@@ -84,8 +84,25 @@ you to have complete flexibility over when and how frequently you execute your
 pings - for example, you might ping one endpoint every minute, whilst another
 might only need to be once an hour.
 
-To do this, first install the Lambda as per the instructions above. Then create
-a new CloudWatch event by:
+To do this, first install the Lambda as per the instructions above and modify the
+`CloudWatch Event Configuration` section in `serverless.yml`.
+```yaml
+    ...
+    memorySize: 128 # MB
+    timeout: 30 # seconds
+    # CloudWatch Event Configuration:
+    events:
+      - schedule:
+          name: lambda-ping-${opt:stage}-5min
+          description: 'Ping HTTP endpoints every 5 minutes'
+          rate: rate(5 minutes)
+          enabled: true
+          input:
+            - 'https://www.jethrocarr.com'
+            - 'https://www.google.com'
+```
+
+Or you can manually create a new CloudWatch event by:
 
 1. Access the CloudWatch Events console.
 2. `Create Rule`

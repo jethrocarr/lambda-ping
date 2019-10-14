@@ -8,7 +8,7 @@ service: ping
 
 provider:
   name: aws
-  runtime: nodejs6.10
+  runtime: nodejs10.x
 
   # As we save metrics to CloudWatch, we need to grant this Lambda the rights to
   # public metric data. IAM for CloudWatch metrics doesn't offer the ability to
@@ -19,6 +19,9 @@ provider:
         - "cloudwatch:PutMetricData"
       Resource: "*"
 
+resources:
+  Description: Check HTTP response code & latency for scheduled endpoints
+
 # We only have the one function. In future we may add others, eg new protocol
 # support if ICMP ever becomes possible on Lambda.
 functions:
@@ -27,3 +30,14 @@ functions:
     description: "Perform an HTTP request to 'ping' a remote server to determine availablity"
     memorySize: 128 # MB
     timeout: 30 # seconds
+    # CloudWatch Event Configuration:
+    # Uncomment and configure your endpoints and scheduled rate here:
+    # events:
+    #   - schedule:
+    #       name: lambda-ping-${opt:stage}-5min
+    #       description: 'Ping HTTP endpoints every 5 minutes'
+    #       rate: rate(5 minutes)
+    #       enabled: true
+    #       input:
+    #         - 'https://www.jethrocarr.com'
+    #         - 'https://www.google.com'

@@ -1,0 +1,25 @@
+{
+  "name": "lambda-ping",
+  "version": "0.1.0",
+  "description": "AWS Lambda - Checks response code & latency of remote endpoints and graph in CloudWatch",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo 'no tests :('"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jethrocarr/lambda-ping.git"
+  },
+  "author": "Jethro Carr",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/jethrocarr/lambda-ping/issues"
+  },
+  "homepage": "https://github.com/jethrocarr/lambda-ping#readme",
+  "dependencies": {
+    "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.548.0"
+  }
+}
