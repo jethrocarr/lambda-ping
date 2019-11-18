@@ -9,6 +9,7 @@ service: ping
 provider:
   name: aws
   runtime: nodejs10.x
+  stage: dev
 
   # As we save metrics to CloudWatch, we need to grant this Lambda the rights to
   # public metric data. IAM for CloudWatch metrics doesn't offer the ability to
@@ -34,7 +35,7 @@ functions:
     # Uncomment and configure your endpoints and scheduled rate here:
     # events:
     #   - schedule:
-    #       name: lambda-ping-${opt:stage}-5min
+    #       name: lambda-ping-${opt:stage, self:provider.stage}-5min
     #       description: 'Ping HTTP endpoints every 5 minutes'
     #       rate: rate(5 minutes)
     #       enabled: true
