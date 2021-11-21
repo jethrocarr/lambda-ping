@@ -36,7 +36,7 @@ functions:
     #   - schedule:
     #       name: lambda-ping-${opt:stage}-5min
     #       description: 'Ping HTTP endpoints every 5 minutes'
-    #       rate: rate(5 minutes)
+    #       rate: cron(1,6,11,16,21,26,31,36,41,46,51,56 * * * ? *)
     #       enabled: true
     #       input:
     #         - 'https://www.jethrocarr.com'
