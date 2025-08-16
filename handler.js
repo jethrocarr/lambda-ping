@@ -2,8 +2,10 @@
 
 const { CloudWatchClient, PutMetricDataCommand } = require('@aws-sdk/client-cloudwatch');
 const https = require('https');
+const http = require('http');
 
 const cloudwatchClient = new CloudWatchClient({});
+
 module.exports.http = async (event, context) => {
   const output = {};
 
@@ -43,8 +45,8 @@ module.exports.http = async (event, context) => {
 
   await Promise.all(endpointPromises);
 
-    console.log("Final results:");
-    console.log(JSON.stringify(output));
+  console.log("Final results:");
+  console.log(JSON.stringify(output));
 
   return output;
 };
@@ -52,16 +54,36 @@ module.exports.http = async (event, context) => {
 async function makeHttpRequest(endpoint) {
   const startTime = Date.now();
 
+  // Determine if URL is HTTP or HTTPS
+  const url = new URL(endpoint);
+  const protocol = url.protocol;
+  
   return new Promise((resolve, reject) => {
-    const req = https.get(endpoint, (res) => {
-      const endTime = Date.now();
-
-      resolve({
-        statusCode: res.statusCode,
-        durationMS: endTime - startTime
+    let req;
+    
+    if (protocol === 'https:') {
+      req = https.get(endpoint, (res) => {
+        const endTime = Date.now();
+        
+        resolve({
+          statusCode: res.statusCode,
+          durationMS: endTime - startTime
+        });
       });
-    });
-
+    } else if (protocol === 'http:') {
+      req = http.get(endpoint, (res) => {
+        const endTime = Date.now();
+        
+        resolve({
+          statusCode: res.statusCode,
+          durationMS: endTime - startTime
+        });
+      });
+    } else {
+      reject(new Error('Unsupported protocol')); 
+      return;
+    }
+    
     req.on('error', (error) => {
       reject(error);
     });
@@ -120,4 +142,4 @@ async function pushMetricsToCloudWatch(endpoint, response) {
     console.log("Unexpected issue posting metrics to CloudWatch");
     console.log(error, error.stack);
   }
-}
+};
