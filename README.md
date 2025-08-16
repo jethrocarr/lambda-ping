@@ -53,6 +53,7 @@ The application can be deployed following the standard [Serverless Framework
 procedures](https://serverless.com/). For example, to deploy a `prod` instance
 to `ap-southeast-2`:
 
+    npm i serverless@3.39.0 -g
     serverless deploy --stage prod --region ap-southeast-2
 
 
