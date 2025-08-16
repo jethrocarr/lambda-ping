@@ -1,7 +1,3 @@
- Only produce the original code's logic but rewrite it with the above suggestions.
-
-I will do the new code from scratch.
-
 'use strict';
 
 const { CloudWatchClient, PutMetricDataCommand } = require('@aws-sdk/client-cloudwatch');
