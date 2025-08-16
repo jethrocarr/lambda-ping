@@ -1,9 +1,9 @@
 'use strict';
 
 const axios = require('axios');
-const AWS = require('aws-sdk');
+const { CloudWatchClient, PutMetricDataCommand } = require('@aws-sdk/client-cloudwatch');
 
-const cloudwatch = new AWS.CloudWatch();
+const cloudwatch = new CloudWatchClient({ region: 'us-west-2' });
 
 module.exports.http = async (event, context) => {
   let output = {};
@@ -68,7 +68,7 @@ module.exports.http = async (event, context) => {
       ]
     };
 
-    await cloudwatch.putMetricData(params).promise();
+    await cloudwatch.send(new PutMetricDataCommand(params));
     console.log("Logged metrics in CloudWatch at: " + params['Namespace']);
   });
 
