@@ -1,3 +1,3 @@
-# Serverless directories
 .serverless
+.aws-sam
 node_modules/

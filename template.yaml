@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Lambda Ping - AWS SAM migration
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 128
+    Runtime: nodejs22.x
+
+Resources:
+  PingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.http
+      CodeUri: .
+      Description: Perform an HTTP request to 'ping' a remote server to determine availability
+      Policies:
+      - Statement:
+          - Effect: Allow
+            Action:
+              - cloudwatch:PutMetricData
+            Resource: "*"
+      Events:
+        ScheduledPing:
+          Type: Schedule
+          Properties:
+            Schedule: rate(5 minutes)
+            Input: '["https://www.jethrocarr.com", "https://www.google.com"]'
