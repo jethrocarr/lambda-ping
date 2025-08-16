@@ -49,22 +49,24 @@ than this Lambda will ever be capable of with CloudWatch graphs.
 
 # Installation
 
-The application can be deployed following the standard [Serverless Framework
-procedures](https://serverless.com/). For example, to deploy a `prod` instance
-to `ap-southeast-2`:
-
-    npm i serverless@3.39.0 -g
-    serverless deploy --stage prod --region ap-southeast-2
+1. Install the AWS SAM CLI: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html
+2. Build the application:
+   ```sh
+   sam build
+   ```
+3. Deploy the application:
+   ```sh
+   sam deploy --guided
+   ```
 
 
 # Usage
 
 To use the Lambda manually, invoke the Lambda with a JSON object defining the
 endpoints as an array:
-
-    serverless invoke --stage prod --region ap-southeast-2 \
-    --function http \
-    --data '["http://www.google.com", "https://www.jethrocarr.com"]'
+   ```sh
+   sam remote invoke PingFunction --stack-name lambda-ping --event '["http://www.google.com", "https://www.jethrocarr.com"]'
+    ```
 
 The function returns a JSON object with the results.
 
@@ -80,27 +82,21 @@ The function returns a JSON object with the results.
     }
 
 Generally you'll probably want to automatically ping the endpoints on a regular
-basis. To do this, create a CloudWatch event on a scheduled basis. This allows
-you to have complete flexibility over when and how frequently you execute your
-pings - for example, you might ping one endpoint every minute, whilst another
-might only need to be once an hour.
+basis. To do this, create a EventBridge schedule. This allows you to have complete
+flexibility over when and how frequently you execute your pings - for example,
+you might ping one endpoint every minute, whilst another might only need to be
+once an hour.
 
-To do this, first install the Lambda as per the instructions above and modify the
-`CloudWatch Event Configuration` section in `serverless.yml`.
+To do this, modify the `CloudWatch Event Configuration` section in `template.yaml`
+and then build and deploy the SAM package.
 ```yaml
-    ...
-    memorySize: 128 # MB
-    timeout: 30 # seconds
-    # CloudWatch Event Configuration:
-    events:
-      - schedule:
-          name: lambda-ping-${opt:stage}-5min
-          description: 'Ping HTTP endpoints every 5 minutes'
-          rate: rate(5 minutes)
-          enabled: true
-          input:
-            - 'https://www.jethrocarr.com'
-            - 'https://www.google.com'
+...
+      Events:
+        ScheduledPing:
+          Type: Schedule
+          Properties:
+            Schedule: rate(5 minutes)
+            Input: '["https://www.jethrocarr.com", "https://www.google.com"]'
 ```
 
 
