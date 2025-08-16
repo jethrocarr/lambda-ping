@@ -103,17 +103,20 @@ To do this, first install the Lambda as per the instructions above and modify th
             - 'https://www.google.com'
 ```
 
-Or you can manually create a new CloudWatch event by:
 
-1. Access the CloudWatch Events console.
-2. `Create Rule`
-3. Select the `Schedule` option for `Event Source`.
-4. Choose your desired rate of execution.
-5. `Add Target`. It should default to `Lambda Function`.
-6. Select the `ping-STAGE-http` Lambda from the dropdown.
-7. Configure input to use `Constant (JSON text)`
-8. Add the array of endpoints to test on this schedule.
-   For example: `["http://www.google.com", "http://github.com"]`
+Or you can manually create a new scheduled event using Amazon EventBridge:
+
+1. Open the Amazon EventBridge console in AWS.
+2. Select `EventBridgeSchedule`
+3. Click `Create rule`.
+4. Set your desired schedule expression (e.g., `rate(5 minutes)` or a cron expression).
+5. Under `Target`, choose `Lambda function`.
+6. Select your Lambda function (e.g., `ping-STAGE-http`) from the dropdown.
+7. In the `Configure input` section, choose `Constant (JSON text)` and provide the array of endpoints to test on this schedule.
+    For example: `["http://www.google.com", "http://github.com"]`
+8. Complete the rule creation process.
+
+You can create as many EventBridge rules as you want, on as many different schedules as you need. For cost efficiency, test as many endpoints as possible using the fewest rules, since all endpoints in a single rule are tested concurrently, reducing Lambda execution time.
 
 You can create as many rules as you want, on as many different schedules as you
 want. Note that is is more cost effective to test as many endpoints using the
@@ -130,7 +133,7 @@ All manner of contributions are welcome in the form of a Pull Request.
 
 # License
 
-    Copyright (c) 2017 Jethro Carr
+    Copyright (c) 2025 Jethro Carr
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
