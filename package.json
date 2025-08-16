@@ -17,9 +17,12 @@
   },
   "homepage": "https://github.com/jethrocarr/lambda-ping#readme",
   "dependencies": {
-    "request": "^2.88.0"
+    "axios": "^1.11.0",
+    "form-data": "^4.0.4",
+    "tough-cookie": "^6.0.0"
   },
   "devDependencies": {
-    "aws-sdk": "^2.814.0"
+    "aws-sdk": "^2.1692.0",
+    "eslint": "^9.33.0"
   }
 }
