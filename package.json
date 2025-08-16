@@ -4,7 +4,7 @@
   "description": "AWS Lambda - Checks response code & latency of remote endpoints and graph in CloudWatch",
   "main": "handler.js",
   "scripts": {
-    "test": "echo 'no tests :('"
+    "deploy": "sls deploy"
   },
   "repository": {
     "type": "git",
@@ -17,9 +17,9 @@
   },
   "homepage": "https://github.com/jethrocarr/lambda-ping#readme",
   "dependencies": {
-    "request": "^2.88.0"
+    "request-promise-native": "^1.1.8" // Use the latest version
   },
   "devDependencies": {
-    "aws-sdk": "^2.814.0"
+    "aws-sdk": "^3.0.0" // Use the latest version
   }
 }
