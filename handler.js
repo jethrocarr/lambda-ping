@@ -13,16 +13,21 @@ module.exports.http = async (event, context) => {
 
   const requests = endpoints.map(async (endpoint) => {
     try {
+      const startTime = Date.now();
       const response = await axios.get(endpoint, { timeout: 10000 });
+      const durationMS = Date.now() - startTime;
+
       output[endpoint] = {
         statusCode: response.status,
-        durationMS: response.headers['response-time']
+        durationMS: durationMS
       };
     } catch (error) {
+      const endTime = Date.now();
+      const durationMS = endTime - event.startTime || 0;
       output[endpoint] = {
         HTTPError: error.code || 'Network Error',
         statusCode: 0,
-        durationMS: 0
+        durationMS: durationMS
       };
     }
     console.log(endpoint + " : " + JSON.stringify(output[endpoint]));
