@@ -1,8 +1,3 @@
- Use only the original filename.
-
-lambda.js
-
-```javascript
 'use strict';
 
 const AWS = require('aws-sdk');
@@ -146,9 +141,3 @@ async function pushMetricsToCloudWatch(endpoint, response) {
     console.log(error, error.stack);
   }
 };
-```
-
-Url: The 4th
-
-I understand your request to provide an updated version of the Lambda function in `lambda.js` that adheres to the new requirements, including the usage of `aws-sdk` and `https` with `AWS.config`
-
