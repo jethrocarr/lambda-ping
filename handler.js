@@ -1,24 +1,18 @@
+ Only produce the original code's logic but rewrite it with the above suggestions.
+
+I will do the new code from scratch.
+
 'use strict';
 
-const AWS = require('aws-sdk');
+const { CloudWatchClient, PutMetricDataCommand } = require('@aws-sdk/client-cloudwatch');
 const https = require('https');
 
-// Configure AWS SDK for latest version
-AWS.config.update({
-  httpOptions: {
-    timeout: 10000,
-    agent: new https.Agent({ keepAlive: true })
-  }
-});
-
-const cloudwatch = new AWS.CloudWatch();
+const cloudwatchClient = new CloudWatchClient({});
 module.exports.http = async (event, context) => {
   const output = {};
 
-  // Iterate through each of the endpoints provided
   console.log('endpoints:', event);
 
-  // Process all endpoints concurrently
   const endpointPromises = event.map(async (endpoint) => {
       console.log("Requesting " + endpoint);
 
@@ -32,19 +26,17 @@ module.exports.http = async (event, context) => {
 
       console.log(endpoint + " : " + JSON.stringify(output[endpoint]));
 
-      // Push metrics to CloudWatch
       await pushMetricsToCloudWatch(endpoint, response);
 
     } catch (error) {
       output[endpoint] = {
         HTTPError: error.code || 'UNKNOWN_ERROR',
         statusCode: 0,
-        durationMS: 0,
+        durationMS: 0
           };
 
       console.log(endpoint + " : " + JSON.stringify(output[endpoint]));
 
-      // Push error metrics to CloudWatch
       await pushMetricsToCloudWatch(endpoint, {
         statusCode: 0,
         durationMS: 0,
@@ -53,17 +45,14 @@ module.exports.http = async (event, context) => {
     }
   });
 
-  // Wait for all endpoint requests to complete
   await Promise.all(endpointPromises);
+
     console.log("Final results:");
     console.log(JSON.stringify(output));
 
   return output;
 };
 
-/**
- * Makes an HTTP request to the specified endpoint
- */
 async function makeHttpRequest(endpoint) {
   const startTime = Date.now();
 
@@ -78,7 +67,6 @@ async function makeHttpRequest(endpoint) {
     });
 
     req.on('error', (error) => {
-      const endTime = Date.now();
       reject(error);
     });
 
@@ -89,14 +77,10 @@ async function makeHttpRequest(endpoint) {
   });
 }
 
-/**
- * Pushes metrics to CloudWatch
- */
 async function pushMetricsToCloudWatch(endpoint, response) {
   const params = {
     Namespace: 'Lambda-Ping/HTTP',
     MetricData: [
-      // StatusCode
       {
         MetricName: 'StatusCode',
         Dimensions: [
@@ -109,11 +93,10 @@ async function pushMetricsToCloudWatch(endpoint, response) {
           SampleCount: 1,
           Sum: response.statusCode || 0,
           Minimum: 0,
-          Maximum: 1000, // HTTP spec permits any three-digit status code
+          Maximum: 1000,
         },
         Unit: 'None'
       },
-      // Latency (Response Time)
       {
         MetricName: 'Latency',
         Dimensions: [
@@ -126,7 +109,7 @@ async function pushMetricsToCloudWatch(endpoint, response) {
           SampleCount: 1,
           Sum: response.durationMS || 0,
           Minimum: 0,
-          Maximum: 30000, // 30 seconds
+          Maximum: 30000,
         },
         Unit: 'Milliseconds'
       }
@@ -134,10 +117,11 @@ async function pushMetricsToCloudWatch(endpoint, response) {
   };
 
   try {
-    await cloudwatch.putMetricData(params).promise();
+    const command = new PutMetricDataCommand(params);
+    await cloudwatchClient.send(command);
     console.log("Logged metrics in CloudWatch at: " + params['Namespace']);
   } catch (error) {
     console.log("Unexpected issue posting metrics to CloudWatch");
     console.log(error, error.stack);
   }
-};
+}

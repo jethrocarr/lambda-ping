@@ -17,10 +17,11 @@
   },
   "homepage": "https://github.com/jethrocarr/lambda-ping#readme",
   "dependencies": {
+    "@aws-sdk/client-cloudwatch": "^3.864.0",
+    "@aws-sdk/client-lambda": "^3.865.0",
     "request": "^2.88.0"
   },
   "devDependencies": {
-    "aws-sdk": "^2.1692.0",
     "serverless": "^3.39.0"
   }
 }
