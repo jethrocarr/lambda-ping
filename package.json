@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/jethrocarr/lambda-ping#readme",
   "dependencies": {
-  "@aws-sdk/client-cloudwatch": "^3.864.0",
+  "@aws-sdk/client-cloudwatch": "^3.1027.0",
   "axios": "^1.11.0"
   },
   "devDependencies": {}
